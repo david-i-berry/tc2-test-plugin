@@ -1,0 +1,6 @@
+resources:
+  JTWCdat
+    type: process
+    processor:
+      name: toJTWCdat.JTWCdat
+
