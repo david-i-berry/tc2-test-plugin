@@ -301,9 +301,10 @@ class BUFR2JTWC(BaseAbstractData):
         x = list(map(lambda b: g.fwd(lon, lat, b, radius)[0:2], np.arange(bearing[0], bearing[1] + 2.5, 2.5)))
         x.insert(0, (lon, lat))
         x.append((lon, lat))
-        feature['geometry']['type'] = "Polygon"
-        feature['geometry']['coordinates'] = list()
-        feature['geometry']['coordinates'].insert(0, x)
+        if radius > 0:
+            feature['geometry']['type'] = "Polygon"
+            feature['geometry']['coordinates'] = list()
+            feature['geometry']['coordinates'].insert(0, x)
         feature['properties']['name'] = "wind_speed_threshold"
         feature['properties']['value'] = wind_speed
         feature['properties']['units'] = units
