@@ -77,8 +77,11 @@ class BUFR2JTWC(BaseAbstractData):
                 else:
                     forecastTime = warningTime
                     tau = item['geojson']['properties']['resultTime']
-                forecastTime = datetime.strptime(forecastTime,"%Y-%m-%dT%H:%M:%SZ")
-                tau = datetime.strptime(tau,"%Y-%m-%dT%H:%M:%SZ")
+                try:
+                    forecastTime = datetime.strptime(forecastTime,"%Y-%m-%dT%H:%M:%SZ")
+                    tau = datetime.strptime(tau,"%Y-%m-%dT%H:%M:%SZ")
+                except Exception as e:
+                    LOGGER.debug(f"Error setting time in geojson processing, error: {e}")
                 tau = int((tau - forecastTime).total_seconds() / 3600)
                 # now construct key for completing data.frame
                 key1 = f"{stormIdentifier}-{subset}-{forecastTime}-{tau}"
