@@ -101,7 +101,7 @@ class BUFR2JTWC(BaseAbstractData):
                 else:
                     assert False
 
-                data_date = datetime.strptime(forecastTime, "%Y%m%d%H")
+                data_date = forecastTime
 
                 self.output_data[f"{key1}-{key2}"] = {
                     'geojson': json.dumps(geojson_out),
@@ -117,7 +117,7 @@ class BUFR2JTWC(BaseAbstractData):
         return True
 
     def get_local_filepath(self, date_):
-        yyyymmdd = date_[0:10]  # date_.strftime('%Y-%m-%d')
+        yyyymmdd = date_.strftime('%Y-%m-%d')
         return Path(yyyymmdd) / 'wis' / self.topic_hierarchy.dirpath
 
 
