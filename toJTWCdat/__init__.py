@@ -103,6 +103,7 @@ class BUFR2JTWC(BaseAbstractData):
                     geojson_out = self.extract_wind_polygon(geojson_out)
                     key2 = bearingToName[bearing]
                 else:
+                    print("ABCDDCBA")
                     assert False
 
                 data_date = forecastTime
@@ -115,7 +116,6 @@ class BUFR2JTWC(BaseAbstractData):
                     }
                 }
                 LOGGER.debug(self.output_data[f"{key1}-{key2}"])
-                LOGGER.debug(self.output_data[key1])
 
         LOGGER.debug('Successfully finished transforming BUFR data')
         return True
