@@ -91,7 +91,8 @@ class BUFR2JTWC(BaseAbstractData):
                     geojson_out = self.extract_MSLP(geojson_out)
                     key2 = "MSLP"
                 elif geojson_out['properties']['name'] ==  "wind_speed_at10m":
-                    geojson_out = self.extract_vMax(geojson_out)
+                    print(self)
+                    geojson_out = self.extract_vmax(geojson_out)
                     key2 = "Vmax"
                 elif geojson_out['properties']['name'] ==  "effective_radius_with_respect_to_wind_speeds_above_threshold":
                     bearing = None
@@ -125,7 +126,7 @@ class BUFR2JTWC(BaseAbstractData):
         return Path(yyyymmdd) / 'wis' / self.topic_hierarchy.dirpath
 
 
-    def extract_Vmax(self, feature):
+    def extract_vmax(self, feature):
         LOGGER.debug("Extracting Vmax as GeoJSON")
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
@@ -139,7 +140,7 @@ class BUFR2JTWC(BaseAbstractData):
 
     def extract_MSLP(self, feature):
         #LOGGER.debug("Extracting MSLP as GeoJSON")
-        #LOGGER.debug(feature)
+        LOGGER.debug(feature)
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
             t1,t2 = forecastTime.split("/")
