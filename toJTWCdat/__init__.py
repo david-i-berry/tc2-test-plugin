@@ -78,6 +78,7 @@ class BUFR2JTWC(BaseAbstractData):
                     forecastTime = warningTime
                     tau = item['geojson']['properties']['resultTime']
                 try:
+                    LOGGER.debug("HERE ++++")
                     forecastTime = datetime.strptime(forecastTime,"%Y-%m-%dT%H:%M:%SZ")
                     tau = datetime.strptime(tau,"%Y-%m-%dT%H:%M:%SZ")
                 except Exception as e:
