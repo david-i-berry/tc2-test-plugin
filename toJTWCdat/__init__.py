@@ -58,35 +58,8 @@ class BUFR2JTWC(BaseAbstractData):
             # - dict['id']
             # - dict['id']['_meta']
             # - dict['id']
-            JTWC = {}
-            datarow = {
-                "basin": "",
-                "cyclone_number": "",
-                "yyyymmddhh": "",
-                "tech_number": "00",
-                "tech": "ECMF",
-                "clat": "",
-                "clon": "",
-                "flat": "",
-                "flon": "",
-                "Vmax": "",
-                "MSLP": "",
-                "TY": "XX",
-                "RAD": {},
-                "MSLP_metadata": None,
-                "Vmax_metadata": None
-            }
-            rads = {
-                "RAD": "",
-                "wind_code": "NEQ",
-                "RAD1": "",
-                "RAD2": "",
-                "RAD3": "",
-                "RAD4": ""
-            }
-            geojsons_out = {}
+
             for id, item in collection.items():
-                #LOGGER.debug(item)
                 # extract identification
                 # check if we have ensemble member number, if not use subset
                 subset = item['geojson']['properties']['subset']
@@ -97,7 +70,6 @@ class BUFR2JTWC(BaseAbstractData):
                 stormName, stormNumber = stormIdentifier.split("-")
                 # now warning time and forecast (tau)
                 warningTime = item['geojson']['properties']['phenomenonTime']
-                #LOGGER.debug(warningTime)
                 forecastTime = None
                 tau = None
                 if "/" in warningTime:
@@ -106,129 +78,40 @@ class BUFR2JTWC(BaseAbstractData):
                     forecastTime = warningTime
                     tau = item['geojson']['properties']['resultTime']
                 forecastTime = datetime.strptime(forecastTime,"%Y-%m-%dT%H:%M:%SZ")
-                #LOGGER.debug("Calculating tau")
                 tau = datetime.strptime(tau,"%Y-%m-%dT%H:%M:%SZ")
                 tau = int((tau - forecastTime).total_seconds() / 3600)
                 # now construct key for completing data.frame
                 key1 = f"{stormIdentifier}-{subset}-{forecastTime}-{tau}"
-
-                if key1 not in JTWC:
-                    JTWC[key1] = deepcopy(datarow)
-                if key1 not in geojsons_out:
-                    geojsons_out[key1] = {}
-
-                #LOGGER.debug(f"Processing {item['geojson']['properties']['name']}")
-                if item['geojson']['properties']['name'] == "pressure_reduced_to_mean_sea_level":
-                    geojsons_out[key1]["MSLP"] = self.extract_MSLP(item['geojson'])
-                    JTWC[key1]['MSLP_metadata'] = deepcopy(item['geojson']['properties']['metadata'])
-                    JTWC[key1]['MSLP_geometry'] = deepcopy(item['geojson']["geometry"])
-                    JTWC[key1]["MSLP"] = int( item['geojson']['properties']['value'] )
-                    # this element also gives location
-                    lat = item['geojson']['geometry']['coordinates'][1]
-                    if lat >=0:
-                        sign = "N"
-                    else:
-                        sign = "S"
-                    clat = int(abs(lat * 10))
-                    JTWC[key1]['clat'] = f"{clat}{sign}"
-                    JTWC[key1]['lat'] = lat
-                    lon = item['geojson']['geometry']['coordinates'][0]
-                    if lon >=0:
-                        sign = "E"
-                    else:
-                        sign = "W"
-                    clon = int(abs(lon * 10))
-                    JTWC[key1]['clon'] = f"{clon}{sign}"
-                    JTWC[key1]['lon'] = lon
-                    JTWC[key1]['basin'] = stormNumber[2]
-                    JTWC[key1]['cyclone_number'] = stormNumber[0:2]  # characters 1 - 2, 3rd is letter
-                    JTWC[key1]['yyyymmddhh'] = forecastTime.strftime("%Y%m%d%H")
-                    JTWC[key1]['tau'] = tau
-                    #LOGGER.debug(JTWC[key1])
-                elif item['geojson']['properties']['name'] == "wind_speed_at10m":
-                    geojsons_out[key1]["vmax"] = self.extract_Vmax(item['geojson'])
-                    JTWC[key1]["Vmax"] = int(item['geojson']['properties']['value']/0.51444444)
-                    JTWC[key1]['Vmax_metadata'] = deepcopy(item['geojson']['properties']['metadata'])
-                    JTWC[key1]['Vmax_geometry'] = deepcopy(item['geojson']["geometry"])
-                elif item['geojson']['properties']['name'] == "effective_radius_with_respect_to_wind_speeds_above_threshold":  # noqc
+                geojson_out = deepcopy(item['geojson'])
+                if geojson_out['properties']['name'] ==  "pressure_reduced_to_mean_sea_level":
+                    geojson_out = self.extract_MSLP(geojson_out)
+                    key2 = "MSLP"
+                elif geojson_out['properties']['name'] ==  "wind_speed_at10m":
+                    geojson_out = self.extract_vMax(geojson_out)
+                    key2 = "Vmax"
+                elif geojson_out['properties']['name'] ==  "effective_radius_with_respect_to_wind_speeds_above_threshold":
                     bearing = None
-                    threshold = None
-                    #LOGGER.debug("Iterating over metadata")
-                    #LOGGER.debug(item['geojson']['properties']['metadata'])
-                    for metadata in item['geojson']['properties']['metadata']:
+                    for metadata in geojson_out['properties']['metadata']:
                         if metadata['name'] == "bearing_or_azimuth":
                             bearing = metadata['value']
                             bearing = f"{bearing[0]}-{bearing[1]}"
-                        elif metadata['name'] == "wind_speed_threshold":
-                            threshold = metadata['value']
                     assert bearing is not None
-                    assert threshold is not None
-                    colname = bearingToName[bearing]
-                    key2 = int(threshold/0.51444444)
-                    val = int(item['geojson']['properties']['value'] * 0.000539957)
-                    if key2 in JTWC[key1]['RAD']:
-                        JTWC[key1]['RAD'][key2][colname] = val
-                    else:
-                        JTWC[key1]['RAD'][key2] = deepcopy(rads)
-                        JTWC[key1]['RAD'][key2][colname] = val
-                    geojsons_out[key1][f"{key2}-{colname}"] = self.extract_wind_polygon(item['geojson'])
+                    geojson_out = self.extract_wind_polygon(geojson_out)
+                    key2 = bearingToName[bearing]
+                else:
+                    assert False
 
-            # end of items in collection
-            # each item int JTCW contains 3 rows of dat file output and 3 objects
-            #LOGGER.debug("Building output string")
-            for key1, data in JTWC.items():
-                output_string = ''
-                head = (f"{data['basin']:>2}",
-                        f"{data['cyclone_number']:>2}",
-                        f"{data['yyyymmddhh']:>10}",
-                        f"{data['tech_number']:>2}",
-                        f"{data['tech']:>4}",
-                        f"{data['tau']:>3}",
-                        f"{data['lat']:>4}",
-                        f"{data['lon']:>5}",
-                        f"{data['Vmax']:>3}",
-                        f"{data['MSLP']:>4}",
-                        f"{data['TY']:>2}")
-                #LOGGER.debug(f"{head}")
-                for key2, rad in data['RAD'].items():
-                    #LOGGER.debug(key2)
-                    #LOGGER.debug(rad)
-                    quadrants = (f"{key2:>3}",
-                                 f"{rad['wind_code']:>3}",
-                                 f"{rad['RAD1']:>4}",
-                                 f"{rad['RAD2']:>4}",
-                                 f"{rad['RAD3']:>4}",
-                                 f"{rad['RAD4']:>4}",
-                                 "")
-                    # add line to output file
-                    output_string += ', '.join(head + quadrants) + "\n"
+                data_date = datetime.strptime(forecastTime, "%Y%m%d%H")
 
-                    # write geojson(s) for line (TODO)
-                    # 1: MSLP, point
-                    # 2: Vmax, point
-                    # 3: quadrant, polygons
-
-                # add .dats to output
-                self.output_data[key1] = {
-                    'dat': output_string,
+                self.output_data[f"{key1}-{key2}"] = {
+                    'geojson': json.dumps(geojson_out),
                     '_meta': {
-                        'data_date': data['yyyymmddhh'],
-                        'relative_filepath': self.get_local_filepath(data['yyyymmddhh'])
+                        'data_date': data_date,
+                        'relative_filepath': self.get_local_filepath(data_date)
                     }
                 }
-
-            # now geojsons
-            for key1, obj1 in geojsons_out.items():
-                for key2, obj2 in obj1.items():
-                    self.output_data[f"{key1}-{key2}"] = {
-                        'geojson': json.dumps(obj2),
-                        '_meta': {
-                            'data_date': data['yyyymmddhh'],
-                            'relative_filepath': self.get_local_filepath(data['yyyymmddhh'])
-                        }
-                    }
-                    LOGGER.debug(self.output_data[f"{key1}-{key2}"])
-                    LOGGER.debug(self.output_data[key1])
+                LOGGER.debug(self.output_data[f"{key1}-{key2}"])
+                LOGGER.debug(self.output_data[key1])
 
         LOGGER.debug('Successfully finished transforming BUFR data')
         return True
