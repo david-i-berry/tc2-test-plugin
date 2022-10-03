@@ -126,7 +126,7 @@ class BUFR2JTWC(BaseAbstractData):
 
 
     def extract_Vmax(self, feature):
-        #LOGGER.debug("Extracting Vmax as GeoJSON")
+        LOGGER.debug("Extracting Vmax as GeoJSON")
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
             t1,t2 = forecastTime.split("/")
