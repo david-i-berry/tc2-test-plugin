@@ -30,6 +30,7 @@ from typing import Union
 
 from bufr2geojson import transform as as_geojson
 from wis2box.data.base import BaseAbstractData
+from wis2box.api import upsert_collection_item
 
 LOGGER = logging.getLogger(__name__)
 
@@ -129,7 +130,6 @@ class BUFR2JTWC(BaseAbstractData):
         yyyymmdd = date_.strftime('%Y-%m-%d')
         return Path(yyyymmdd) / 'wis' / self.topic_hierarchy.dirpath
 
-
     def extract_vmax(self, feature):
         LOGGER.debug("Extracting Vmax as GeoJSON")
         forecastTime = feature['properties']['phenomenonTime']
@@ -210,3 +210,22 @@ class BUFR2JTWC(BaseAbstractData):
         feature['properties']['phenomenonTime'] = t2
         return feature
 
+    def publish(self) -> bool:
+        LOGGER.info('Publishing output data')
+        for identifier, item in self.output_data.items():
+            # now iterate over formats
+            for format_, the_data in item.items():
+                if format_ == '_meta':  # not data, skip
+                    continue
+
+                LOGGER.debug(f'Processing format: {format_}')
+                # check that we actually have data
+                if the_data is None:
+                    msg = f'Empty data for {identifier}-{format_}; not publishing'  # noqa
+                    LOGGER.warning(msg)
+                    continue
+
+                LOGGER.debug('Publishing data to API')
+                upsert_collection_item(self.topic_hierarchy.dotpath, the_data)
+
+        return True
