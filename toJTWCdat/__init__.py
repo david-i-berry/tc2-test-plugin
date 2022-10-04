@@ -72,6 +72,7 @@ class BUFR2JTWC(BaseAbstractData):
                 warningTime = item['geojson']['properties']['phenomenonTime']
                 forecastTime = None
                 tau = None
+                LOGGER.debug("Extracting forecast time")
                 if "/" in warningTime:
                     forecastTime, tau = warningTime.split("/")
                 else:
@@ -85,6 +86,7 @@ class BUFR2JTWC(BaseAbstractData):
                     LOGGER.debug(f"Error setting time in geojson processing, error: {e}")
                 tau = int((tau - forecastTime).total_seconds() / 3600)
                 # now construct key for completing data.frame
+                LOGGER.debug("extracting data")
                 key1 = f"{stormIdentifier}-{subset}-{forecastTime}-{tau}"
                 geojson_out = deepcopy(item['geojson'])
                 if geojson_out['properties']['name'] ==  "pressure_reduced_to_mean_sea_level":
@@ -107,6 +109,7 @@ class BUFR2JTWC(BaseAbstractData):
                     print("ABCDDCBA")
                     assert False
 
+                LOGGER.debug("publishing")
                 data_date = forecastTime
 
                 self.output_data[f"{key1}-{key2}"] = {
