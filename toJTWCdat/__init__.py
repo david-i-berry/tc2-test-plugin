@@ -58,8 +58,9 @@ class BUFR2JTWC(BaseAbstractData):
             # - dict['id']
             # - dict['id']['_meta']
             # - dict['id']
-
+            print("+++ OUTER +++")
             for id, item in collection.items():
+                print("+++ INNER +++")
                 # extract identification
                 # check if we have ensemble member number, if not use subset
                 subset = item['geojson']['properties']['subset']
