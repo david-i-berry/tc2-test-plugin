@@ -215,7 +215,7 @@ class BUFR2JTWC(BaseAbstractData):
                     msg = f'Empty data for {identifier}-{format_}; not publishing'  # noqa
                     LOGGER.warning(msg)
                     continue
-                upsert_list.append(the_data)
+                upsert_list.append(deepcopy(the_data))
         LOGGER.debug('Publishing data to API')
         LOGGER.debug(f"{len(upsert_list)} items to publish")
         count = 0
