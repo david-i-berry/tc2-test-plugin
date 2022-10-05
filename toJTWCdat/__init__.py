@@ -213,7 +213,7 @@ class BUFR2JTWC(BaseAbstractData):
                 if format_ == '_meta':  # not data, skip
                     continue
 
-                LOGGER.debug(f'Processing format: {format_}')
+                #LOGGER.debug(f'Processing format: {format_}')
                 # check that we actually have data
                 if the_data is None:
                     msg = f'Empty data for {identifier}-{format_}; not publishing'  # noqa
