@@ -84,7 +84,7 @@ class BUFR2JTWC(BaseAbstractData):
                     LOGGER.debug(f"Error setting time in geojson processing, error: {e}")
                 tau = int((tau - forecastTime).total_seconds() / 3600)
                 # now construct key for completing data.frame
-                LOGGER.debug("extracting data")
+                #LOGGER.debug("extracting data")
                 key1 = f"{stormIdentifier}-{subset}-{forecastTime}-{tau}"
                 geojson_out = deepcopy(item['geojson'])
                 if geojson_out['properties']['name'] ==  "pressure_reduced_to_mean_sea_level":
@@ -105,7 +105,7 @@ class BUFR2JTWC(BaseAbstractData):
                 else:
                     assert False
 
-                LOGGER.debug("publishing")
+                #LOGGER.debug("publishing")
                 data_date = forecastTime
 
                 self.output_data[f"{key1}-{key2}"] = {
@@ -222,13 +222,7 @@ class BUFR2JTWC(BaseAbstractData):
                 upsert_list.append(deepcopy(the_data))
         LOGGER.debug('Publishing data to API')
         LOGGER.debug(f"{len(upsert_list)} items to publish")
-        count = 0
-        for item in upsert_list:
-            LOGGER.debug(f"Item {count}: {item}")
-            count += 1
-            assert len(upsert_list) > 1
-        newlist = deepcopy(upsert_list)
-        self.list_test(newlist)
-        upsert_collection_item(self.topic_hierarchy.dotpath, newlist)
+
+        upsert_collection_item(self.topic_hierarchy.dotpath, upsert_list)
 
         return True
