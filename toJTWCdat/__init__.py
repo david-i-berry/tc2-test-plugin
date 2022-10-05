@@ -217,6 +217,7 @@ class BUFR2JTWC(BaseAbstractData):
                     continue
                 upsert_list.append(the_data)
         LOGGER.debug('Publishing data to API')
+        LOGGER.debug(f"{len(upsert_list)} items to publish")
         upsert_collection_item(self.topic_hierarchy.dotpath, upsert_list)
 
         return True
