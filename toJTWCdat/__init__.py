@@ -30,7 +30,7 @@ from typing import Union
 
 from bufr2geojson import transform as as_geojson
 from wis2box.data.base import BaseAbstractData
-from wis2box.api import upsert_collection_item
+from wis2box.api import upsert_collection_items
 
 LOGGER = logging.getLogger(__name__)
 
@@ -229,6 +229,6 @@ class BUFR2JTWC(BaseAbstractData):
             assert len(upsert_list) > 1
         newlist = deepcopy(upsert_list)
         self.list_test(newlist)
-        upsert_collection_item(self.topic_hierarchy.dotpath, newlist)
+        upsert_collection_items(self.topic_hierarchy.dotpath, newlist)
 
         return True
