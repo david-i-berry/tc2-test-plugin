@@ -223,7 +223,7 @@ class BUFR2JTWC(BaseAbstractData):
             LOGGER.debug(f"Item {count}: {item}")
             count += 1
             assert len(upsert_list) > 1
-        newlist = deepyopc(upsert_list)
+        newlist = deepcopy(upsert_list)
         upsert_collection_item(self.topic_hierarchy.dotpath, newlist)
 
         return True
