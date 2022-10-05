@@ -115,7 +115,7 @@ class BUFR2JTWC(BaseAbstractData):
                 data_date = forecastTime
 
                 self.output_data[f"{key1}-{key2}"] = {
-                    'geojson': json.dumps(geojson_out),
+                    'geojson': geojson_out, # json.dumps(geojson_out),
                     '_meta': {
                         'data_date': data_date.strftime('%Y-%m-%d %H:%M'),
                         'relative_filepath': self.get_local_filepath(data_date)
