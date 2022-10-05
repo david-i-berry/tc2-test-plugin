@@ -134,6 +134,16 @@ class BUFR2JTWC(BaseAbstractData):
         return Path(yyyymmdd) / 'wis' / self.topic_hierarchy.dirpath
 
     def extract_vmax(self, feature):
+        keep = ("centre", "generating_application", "storm_identifier", "long_storm_name",
+                "technique_for_making_up_initial_perturbations", "ensemble_member_number", "ensemble_forecast_type",
+                "meteorological_attribute_significance")
+        parameters = feature['properties']['metadata']
+        # drop unwanted / used parameters
+        feature['properties']['parameters'] = list()
+        for parameter in parameters:
+            if parameter['name'] in keep:
+                feature['properties']['parameters'].append(parameter)
+        del feature['properties']['metadata']
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
             t1,t2 = forecastTime.split("/")
@@ -145,6 +155,16 @@ class BUFR2JTWC(BaseAbstractData):
         return feature
 
     def extract_MSLP(self, feature):
+        keep = ("centre", "generating_application", "storm_identifier", "long_storm_name",
+                "technique_for_making_up_initial_perturbations", "ensemble_member_number", "ensemble_forecast_type",
+                "meteorological_attribute_significance")
+        parameters = feature['properties']['metadata']
+        # drop unwanted / used parameters
+        feature['properties']['parameters'] = list()
+        for parameter in parameters:
+            if parameter['name'] in keep:
+                feature['properties']['parameters'].append(parameter)
+        del feature['properties']['metadata']
         #LOGGER.debug("Extracting MSLP as GeoJSON")
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
