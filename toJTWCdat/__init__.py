@@ -54,12 +54,13 @@ class BUFR2JTWC(BaseAbstractData):
         results = as_geojson(input_bytes, serialize=False)
 
         LOGGER.debug('Processing GeoJSON features')
-        count = 0
+
         for collection in results:
             # results is an iterator, for each iteration we have:
             # - dict['id']
             # - dict['id']['_meta']
             # - dict['id']
+            count = 0
             for id, item in collection.items():
                 count += 1
                 # extract identification
@@ -110,13 +111,13 @@ class BUFR2JTWC(BaseAbstractData):
                 #LOGGER.debug("publishing")
                 data_date = forecastTime
 
-                if f"{key1}-{key2}" in self.output_data:
+                if f"{key1}-{count}" in self.output_data:
                     LOGGER.error("duplicate key found")
-                    LOGGER.error(f"Feature: {count}, key: {key1}-{key2}")
+                    LOGGER.error(f"Feature: {count}, key: {key1}-{count}")
                     assert False
 
 
-                self.output_data[f"{key1}-{key2}"] = {
+                self.output_data[f"{key1}-{count}"] = {
                     'geojson': geojson_out, # json.dumps(geojson_out),
                     '_meta': {
                         'data_date': data_date.strftime('%Y-%m-%d %H:%M'),
