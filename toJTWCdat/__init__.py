@@ -110,6 +110,11 @@ class BUFR2JTWC(BaseAbstractData):
                 #LOGGER.debug("publishing")
                 data_date = forecastTime
 
+                if f"{key1}-{key2}" in self.output_data:
+                    LOGGER.error("duplicate key found")
+                    LOGGER.error(f"Feature: {count}, key: {key1}-{key2}")
+
+
                 self.output_data[f"{key1}-{key2}"] = {
                     'geojson': geojson_out, # json.dumps(geojson_out),
                     '_meta': {
