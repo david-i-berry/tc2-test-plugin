@@ -54,12 +54,14 @@ class BUFR2JTWC(BaseAbstractData):
         results = as_geojson(input_bytes, serialize=False)
 
         LOGGER.debug('Processing GeoJSON features')
+        count = 0
         for collection in results:
             # results is an iterator, for each iteration we have:
             # - dict['id']
             # - dict['id']['_meta']
             # - dict['id']
             for id, item in collection.items():
+                count += 1
                 # extract identification
                 # check if we have ensemble member number, if not use subset
                 subset = item['geojson']['properties']['subset']
@@ -117,6 +119,7 @@ class BUFR2JTWC(BaseAbstractData):
                 }
 
         LOGGER.debug('Successfully finished transforming BUFR data')
+        LOGGER.debug(f"{count} features processed")
         return True
 
     def get_local_filepath(self, date_):
