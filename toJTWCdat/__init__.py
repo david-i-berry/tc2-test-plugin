@@ -59,9 +59,7 @@ class BUFR2JTWC(BaseAbstractData):
             # - dict['id']
             # - dict['id']['_meta']
             # - dict['id']
-            print("+++ OUTER +++")
             for id, item in collection.items():
-                print("+++ INNER +++")
                 # extract identification
                 # check if we have ensemble member number, if not use subset
                 subset = item['geojson']['properties']['subset']
@@ -93,7 +91,6 @@ class BUFR2JTWC(BaseAbstractData):
                     geojson_out = self.extract_MSLP(geojson_out)
                     key2 = "MSLP"
                 elif geojson_out['properties']['name'] ==  "wind_speed_at10m":
-                    print(self)
                     geojson_out = self.extract_vmax(geojson_out)
                     key2 = "Vmax"
                 elif geojson_out['properties']['name'] ==  "effective_radius_with_respect_to_wind_speeds_above_threshold":
@@ -106,7 +103,6 @@ class BUFR2JTWC(BaseAbstractData):
                     geojson_out = self.extract_wind_polygon(geojson_out)
                     key2 = bearingToName[bearing]
                 else:
-                    print("ABCDDCBA")
                     assert False
 
                 LOGGER.debug("publishing")
@@ -206,6 +202,7 @@ class BUFR2JTWC(BaseAbstractData):
 
     def publish(self) -> bool:
         LOGGER.info('Publishing output data')
+        upsert_list = []
         for identifier, item in self.output_data.items():
             # now iterate over formats
             for format_, the_data in item.items():
@@ -218,8 +215,8 @@ class BUFR2JTWC(BaseAbstractData):
                     msg = f'Empty data for {identifier}-{format_}; not publishing'  # noqa
                     LOGGER.warning(msg)
                     continue
-
-                LOGGER.debug('Publishing data to API')
-                upsert_collection_item(self.topic_hierarchy.dotpath, the_data)
+                upsert_list.append(the_data)
+        LOGGER.debug('Publishing data to API')
+        upsert_collection_item(self.topic_hierarchy.dotpath, the_data)
 
         return True
