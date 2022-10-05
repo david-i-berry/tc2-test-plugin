@@ -74,14 +74,12 @@ class BUFR2JTWC(BaseAbstractData):
                 warningTime = item['geojson']['properties']['phenomenonTime']
                 forecastTime = None
                 tau = None
-                LOGGER.debug("Extracting forecast time")
                 if "/" in warningTime:
                     forecastTime, tau = warningTime.split("/")
                 else:
                     forecastTime = warningTime
                     tau = item['geojson']['properties']['resultTime']
                 try:
-                    LOGGER.debug("HERE ++++")
                     forecastTime = datetime.strptime(forecastTime,"%Y-%m-%dT%H:%M:%SZ")
                     tau = datetime.strptime(tau,"%Y-%m-%dT%H:%M:%SZ")
                 except Exception as e:
@@ -121,7 +119,6 @@ class BUFR2JTWC(BaseAbstractData):
                         'relative_filepath': self.get_local_filepath(data_date)
                     }
                 }
-                LOGGER.debug(self.output_data[f"{key1}-{key2}"])
 
         LOGGER.debug('Successfully finished transforming BUFR data')
         return True
@@ -131,7 +128,6 @@ class BUFR2JTWC(BaseAbstractData):
         return Path(yyyymmdd) / 'wis' / self.topic_hierarchy.dirpath
 
     def extract_vmax(self, feature):
-        LOGGER.debug("Extracting Vmax as GeoJSON")
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
             t1,t2 = forecastTime.split("/")
@@ -144,7 +140,6 @@ class BUFR2JTWC(BaseAbstractData):
 
     def extract_MSLP(self, feature):
         #LOGGER.debug("Extracting MSLP as GeoJSON")
-        LOGGER.debug(feature)
         forecastTime = feature['properties']['phenomenonTime']
         if "/" in forecastTime:
             t1,t2 = forecastTime.split("/")
@@ -156,7 +151,6 @@ class BUFR2JTWC(BaseAbstractData):
         return feature
 
     def extract_wind_polygon(self, feature):
-        #LOGGER.debug("Extracting polygons")
         keep = ("centre", "generating_application", "storm_identifier", "long_storm_name",
                 "technique_for_making_up_initial_perturbations", "ensemble_member_number", "ensemble_forecast_type",
                 "meteorological_attribute_significance")
