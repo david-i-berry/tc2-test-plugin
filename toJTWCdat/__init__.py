@@ -200,6 +200,10 @@ class BUFR2JTWC(BaseAbstractData):
         feature['properties']['phenomenonTime'] = t2
         return feature
 
+    def list_test(self, items):
+        LOGGER.debug(len(items))
+        assert len(items) > 1
+
     def publish(self) -> bool:
         LOGGER.info('Publishing output data')
         upsert_list = []
@@ -224,6 +228,7 @@ class BUFR2JTWC(BaseAbstractData):
             count += 1
             assert len(upsert_list) > 1
         newlist = deepcopy(upsert_list)
+        self.list_test(newlist)
         upsert_collection_item(self.topic_hierarchy.dotpath, newlist)
 
         return True
