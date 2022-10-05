@@ -113,6 +113,7 @@ class BUFR2JTWC(BaseAbstractData):
                 if f"{key1}-{key2}" in self.output_data:
                     LOGGER.error("duplicate key found")
                     LOGGER.error(f"Feature: {count}, key: {key1}-{key2}")
+                    assert False
 
 
                 self.output_data[f"{key1}-{key2}"] = {
